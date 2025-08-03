@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shop Big View</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .products-container {
+      max-height: 1000px;
+      overflow-y: auto;
+    }
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+    }
+    .shadow-soft {
+      box-shadow: 0 6px 12px rgb(0 0 0 / 0.1);
+    }
+    .product-card {
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      background-color: #cfff80;
+      border-radius: 1rem;
+      box-shadow: 0 6px 12px rgb(0 0 0 / 0.1);
+      transition: all 0.3s;
+      height: auto;
+      min-height: 450px;
+    }
+    .product-card img {
+      transition: transform 0.3s ease;
+    }
+    .product-card:hover img {
+      transform: scale(1.05);
+    }
+    #cartModal {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    @media (max-width: 768px) {
+  #productDetails,
+  #voiceText,
+  #productPrice {
+    font-size: 16px !important;
+  }
+
+  .product-card {
+    min-height: auto;
+  }
+
+  #productDetails h2 {
+    font-size: 1.25rem !important;
+  }
+}
+  </style>
+</head>
+<body>
+<!-- Top Navigation -->
+<header class="flex items-center justify-between p-6 bg-[#cfff80] shadow-soft sticky top-0 z-20">
+  <div class="relative w-96">
+    <input id="searchInput" type="search" placeholder="Search products..." class="w-full rounded-xl py-3 pl-12 pr-14 text-lg focus:outline-none shadow-soft" />
+    <svg class="w-6 h-6 text-gray-600 absolute left-4 top-3 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <button id="voiceBtn" class="absolute right-6 top-2.5 text-gray-700 hover:text-black"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1v11"></path><path d="M8 5.5a4 4 0 0 0 8 0"></path><line x1="12" y1="11" x2="12" y2="19"></line><line x1="8" y1="19" x2="16" y2="19"></line></svg></button>
+  </div>
+  <div class="flex items-center space-x-8 text-black">
+    <button id="cartBtn" class="relative" onclick="showCartModal()">
+      <svg class="icon-btn" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4"></path><circle cx="7" cy="21" r="1"></circle><circle cx="17" cy="21" r="1"></circle></svg>
+      <span id="cartCount" class="absolute -top-1 -right-2 bg-black text-white text-sm rounded-full w-6 h-6 flex items-center justify-center">0</span>
+    </button>
+    <button class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path></svg>
+    </button>
+  </div>
+</header>
+
+<!-- Category Buttons -->
+<div id="mobileCategoryMenu" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+  <div class="w-64 bg-white h-full p-6 shadow-lg">
+    <h2 class="text-xl font-bold mb-4">Categories</h2>
+    <button class="category-btn w-full text-left px-4 py-2 mb-2 rounded bg-black text-white" data-category="all">All</button>
+    <button class="category-btn w-full text-left px-4 py-2 mb-2 rounded bg-gray-300 text-black" data-category="electronics">Electronics</button>
+    <button class="category-btn w-full text-left px-4 py-2 mb-2 rounded bg-gray-300 text-black" data-category="clothing">Clothing</button>
+    <button class="category-btn w-full text-left px-4 py-2 mb-2 rounded bg-gray-300 text-black" data-category="appliances">Appliances</button>
+    <button onclick="toggleMobileCategoryMenu()" class="mt-6 w-full bg-red-500 text-white py-2 rounded">Close</button>
+  </div>
+</div>
+
+<nav class="flex justify-center gap-6 my-6 flex-wrap px-6 text-lg">
+  <!-- For desktop -->
+  <div class="hidden md:flex gap-6 flex-wrap">
+    <button class="category-btn bg-black text-white rounded-full px-6 py-2" data-category="all">All</button>
+    <button class="category-btn bg-gray-300 text-black rounded-full px-6 py-2" data-category="electronics">Electronics</button>
+    <button class="category-btn bg-gray-300 text-black rounded-full px-6 py-2" data-category="clothing">Clothing</button>
+    <button class="category-btn bg-gray-300 text-black rounded-full px-6 py-2" data-category="appliances">Appliances</button>
+  </div>
+  <!-- For mobile -->
+  <button onclick="toggleMobileCategoryMenu()" class="md:hidden bg-black text-white px-6 py-2 rounded-full">☰ Categories</button>
+</nav>
+
+<!-- Main Layout -->
+<main class="flex flex-col-reverse md:flex-row gap-6 px-6 pb-12 max-w-screen-2xl mx-auto">
+  <!-- Products Grid -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 flex-grow products-container" id="productsContainer"></section>
+
+  <!-- Sidebar -->
+  <aside class="w-full md:w-[700px] bg-[#cfff80] rounded-xl p-6 flex flex-col gap-6 sticky md:top-24 text-lg">
+    <img id="selectedImage" src="" alt="Selected Product" class="w-full h-30 object-cover rounded-xl hidden" />
+    <div id="productDetails" class="bg-gray-300 rounded-xl p-4 h-60 text-black overflow-y-auto">
+      <p class="text-lg text-black">Select a product to see details here.</p>
+    </div>
+    <div class="bg-gray-300 rounded-xl p-4 text-black flex items-center gap-4 h-50 overflow-y-auto min-h-[4rem]">
+      <button id="readTextBtn" class="p-3 bg-black text-white rounded-xl">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M3 10v4h4l5 5V5L7 10H3zM17 12c0-1.77-1.02-3.29-2.5-4.03v8.06A4.481 4.481 0 0 0 17 12z"></path></svg>
+      </button>
+      <p id="voiceText" class="text-base text-gray-400 break-words">No text selected.</p>
+    </div>
+    <div class="text-3xl font-bold text-black" id="productPrice">₱0.00</div>
+    <div class="flex gap-4">
+      <button id="addToCartBtn" disabled class="flex-grow py-3 bg-gray-400 text-black rounded-xl font-semibold">Add to Cart</button>
+      <button id="checkoutBtn" class="flex-grow py-3 bg-black text-white rounded-xl font-semibold">Checkout</button>
+    </div>
+    <div class="flex items-center justify-between mt-auto">
+      <label for="textSizeRange" class="font-semibold text-black">Text size:</label>
+      <input type="range" min="14" max="28" id="textSizeRange" value="18" />
+      <span id="textSizeValue" class="font-semibold text-black">18 px</span>
+    </div>
+  </aside>
+</main>
+
+
+<!-- Cart Modal -->
+<div id="cartModal" class="fixed inset-0 bg-black bg-opacity-40 hidden justify-center items-center z-50">
+  <div class="bg-white w-96 p-6 rounded shadow-lg relative">
+    ...
+    <div id="cartItemsList" class="space-y-2 mb-4"></div>
+    <div id="cartTotal" class="font-bold mb-4 text-right">Total: ₱0.00</div>
+    <button onclick="checkout()" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Checkout</button>
+    <button onclick="cartModal.classList.add('hidden')" class="absolute top-2 right-2 text-gray-600 hover:text-black">&times;</button>
+  </div>
+</div>
+
+
+<script>
+  const products = Array.from({ length: 20 }, (_, i) => ({
+    id: i + 1,
+    name: `Product ${i + 1}`,
+    category: ["electronics", "clothing", "appliances"][i % 3],
+    price: 100 + i * 10,
+    description: `This is a great ${["electronic", "fashion", "home"][i % 3]} item, model ${i + 1}.`,
+    image: "picture.jpg"
+  }));
+  
+  let currentCategory = "all";
+  let selectedProduct = null;
+  let cart = [];
+  
+  const productsContainer = document.getElementById("productsContainer");
+  const productDetails = document.getElementById("productDetails");
+  const productPrice = document.getElementById("productPrice");
+  const addToCartBtn = document.getElementById("addToCartBtn");
+  const cartCount = document.getElementById("cartCount");
+  const voiceText = document.getElementById("voiceText");
+  const readTextBtn = document.getElementById("readTextBtn");
+  const checkoutBtn = document.getElementById("checkoutBtn");
+  const searchInput = document.getElementById("searchInput");
+  const voiceBtn = document.getElementById("voiceBtn");
+  const textSizeRange = document.getElementById("textSizeRange");
+  const textSizeValue = document.getElementById("textSizeValue");
+  const categoryBtns = document.querySelectorAll(".category-btn");
+  const selectedImage = document.getElementById("selectedImage");
+  const cartModal = document.getElementById("cartModal");
+  const cartItemsList = document.getElementById("cartItemsList");
+  const cartTotal = document.getElementById("cartTotal");
+  
+  function createProductCard(product) {
+    const card = document.createElement("div");
+    card.className = "product-card hover:shadow-lg cursor-pointer transition-all";
+    card.innerHTML = `
+      <img src="${product.image}" alt="${product.name}" class="w-full h-52 object-cover rounded-xl mb-4" />
+      <div class="font-bold text-xl mb-2">${product.name}</div>
+      <div class="text-base text-gray-700 mb-1 capitalize">${product.category}</div>
+      <p class="text-base text-gray-800 mb-3">${product.description}</p>
+      <div class="mt-auto font-bold text-lg text-black">₱${product.price.toFixed(2)}</div>
+    `;
+    card.addEventListener("click", () => selectProduct(product));
+    return card;
+  }
+  
+  function displayProducts(list) {
+    productsContainer.innerHTML = "";
+    if (list.length === 0) {
+      productsContainer.innerHTML = "<p class='text-center col-span-full text-xl'>No products found.</p>";
+      return;
+    }
+    list.forEach(p => productsContainer.appendChild(createProductCard(p)));
+  }
+  
+  function selectProduct(product) {
+    selectedProduct = product;
+    selectedImage.src = product.image;
+    selectedImage.classList.remove("hidden");
+    productDetails.innerHTML = `<h2 class="text-2xl font-bold mb-2">${product.name}</h2><p>Category: ${product.category}</p><p>${product.description}</p>`;
+    productPrice.textContent = `₱${product.price.toFixed(2)}`;
+    voiceText.textContent = `${product.name}. ${product.description}. Price: ₱${product.price.toFixed(2)}`;
+    voiceText.classList.remove("text-gray-400");
+    addToCartBtn.disabled = false;
+  }
+  
+  function filterAndSearchProducts() {
+    const term = searchInput.value.toLowerCase();
+    localStorage.setItem("searchTerm", term);
+  
+    let list = currentCategory === "all" ? products : products.filter(p => p.category === currentCategory);
+    if (term) {
+      list = list.filter(p => p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term) || p.category.toLowerCase().includes(term));
+    }
+  
+    displayProducts(list);
+    selectedProduct = null;
+    selectedImage.classList.add("hidden");
+    productDetails.innerHTML = `<p class="text-lg text-black">Select a product to see details here.</p>`;
+    productPrice.textContent = "₱0.00";
+    addToCartBtn.disabled = true;
+    voiceText.textContent = "No text selected.";
+    voiceText.classList.add("text-gray-400");
+  }
+  
+  function readTextAloud() {
+    if (!voiceText.textContent || voiceText.textContent === "No text selected.") return;
+    const utter = new SpeechSynthesisUtterance(voiceText.textContent);
+    window.speechSynthesis.speak(utter);
+  }
+  
+  function addToCart() {
+    if (!selectedProduct) return;
+    const existing = cart.find(p => p.id === selectedProduct.id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ ...selectedProduct, quantity: 1 });
+    }
+    cartCount.textContent = cart.reduce((sum, p) => sum + p.quantity, 0);
+    alert(`${selectedProduct.name} added to cart!`);
+  }
+  
+  function updateCartItemQuantity(index, change) {
+    cart[index].quantity += change;
+    if (cart[index].quantity <= 0) {
+      cart.splice(index, 1);
+    }
+    cartCount.textContent = cart.reduce((sum, p) => sum + p.quantity, 0);
+    showCartModal();
+  }
+  
+  function checkout() {
+    if (cart.length === 0) return alert("Cart is empty!");
+    showCartModal();
+  }
+  
+  function showCartModal() {
+    cartItemsList.innerHTML = "";
+    let total = 0;
+    cart.forEach((item, index) => {
+      const subtotal = item.price * item.quantity;
+      total += subtotal;
+      const div = document.createElement("div");
+      div.className = "flex justify-between items-center border-b pb-2";
+      div.innerHTML = `
+        <div class="flex flex-col w-full">
+          <div class="flex justify-between">
+            <span class="font-semibold">${item.name}</span>
+            <button class="text-red-600 font-bold text-xl" onclick="updateCartItemQuantity(${index}, -${item.quantity})">&times;</button>
+          </div>
+          <div class="flex justify-between items-center mt-2">
+            <div class="flex items-center gap-2">
+              <button onclick="updateCartItemQuantity(${index}, -1)" class="bg-gray-300 px-2 rounded">−</button>
+              <span class="min-w-[2rem] text-center">${item.quantity}</span>
+              <button onclick="updateCartItemQuantity(${index}, 1)" class="bg-gray-300 px-2 rounded">+</button>
+            </div>
+            <span>₱${subtotal.toFixed(2)}</span>
+          </div>
+        </div>
+      `;
+      cartItemsList.appendChild(div);
+    });
+    cartTotal.textContent = `Total: ₱${total.toFixed(2)}`;
+    cartModal.classList.remove("hidden");
+    cartModal.classList.add("flex");
+  }
+  
+  function closeCartModal() {
+    cartModal.classList.add("hidden");
+    cartModal.classList.remove("flex");
+  }
+  
+  function updateTextSizes(sizePx) {
+    document.querySelectorAll("body, p, h2, div").forEach(el => el.style.fontSize = sizePx + "px");
+    voiceText.style.fontSize = sizePx + "px";
+  }
+  
+  addToCartBtn.addEventListener("click", addToCart);
+  checkoutBtn.addEventListener("click", checkout);
+  readTextBtn.addEventListener("click", readTextAloud);
+  searchInput.addEventListener("input", filterAndSearchProducts);
+  voiceBtn.addEventListener("click", () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return alert("Speech recognition not supported");
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.onresult = e => {
+      searchInput.value = e.results[0][0].transcript;
+      filterAndSearchProducts();
+    };
+    recognition.start();
+  });
+  textSizeRange.addEventListener("input", () => {
+    textSizeValue.textContent = `${textSizeRange.value} px`;
+    updateTextSizes(textSizeRange.value);
+  });
+  categoryBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      categoryBtns.forEach(b => b.classList.replace("bg-black", "bg-gray-300"));
+      btn.classList.replace("bg-gray-300", "bg-black");
+      currentCategory = btn.dataset.category;
+      localStorage.setItem("currentCategory", currentCategory);
+      filterAndSearchProducts();
+    });
+  });
+  
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedCategory = localStorage.getItem("currentCategory") || "all";
+    const savedSearch = localStorage.getItem("searchTerm") || "";
+    const btn = Array.from(categoryBtns).find(b => b.dataset.category === savedCategory);
+    if (btn) btn.click();
+    searchInput.value = savedSearch;
+    filterAndSearchProducts();
+  });
+  
+  updateTextSizes(textSizeRange.value);
+  function checkout() {
+  if (cart.length === 0) {
+    alert("Your cart is empty!");
+    return;
+  }
+  alert("Thanks for buying!");
+  cart = [];
+  cartModal.classList.add("hidden");
+  cartCount.textContent = 0;
+}
+
+
+  function toggleMobileCategoryMenu() {
+  const menu = document.getElementById("mobileCategoryMenu");
+  menu.classList.toggle("hidden");
+  menu.classList.toggle("flex");
+}
+function toggleMobileCategoryMenu() {
+  const menu = document.getElementById("mobileCategoryMenu");
+  menu.classList.toggle("hidden");
+  menu.classList.toggle("flex");
+}
+
+
+  </script>
+  
+
+</body>
+</html>
