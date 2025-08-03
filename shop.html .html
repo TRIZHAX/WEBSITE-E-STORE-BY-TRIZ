@@ -77,7 +77,7 @@
   </div>
 </header>
 
-<!-- Category Buttons -->
+
 <div id="mobileCategoryMenu" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
   <div class="w-64 bg-white h-full p-6 shadow-lg">
     <h2 class="text-xl font-bold mb-4">Categories</h2>
@@ -90,23 +90,23 @@
 </div>
 
 <nav class="flex justify-center gap-6 my-6 flex-wrap px-6 text-lg">
-  <!-- For desktop -->
+
   <div class="hidden md:flex gap-6 flex-wrap">
     <button class="category-btn bg-black text-white rounded-full px-6 py-2" data-category="all">All</button>
     <button class="category-btn bg-gray-300 text-black rounded-full px-6 py-2" data-category="electronics">Electronics</button>
     <button class="category-btn bg-gray-300 text-black rounded-full px-6 py-2" data-category="clothing">Clothing</button>
     <button class="category-btn bg-gray-300 text-black rounded-full px-6 py-2" data-category="appliances">Appliances</button>
   </div>
-  <!-- For mobile -->
+
   <button onclick="toggleMobileCategoryMenu()" class="md:hidden bg-black text-white px-6 py-2 rounded-full">☰ Categories</button>
 </nav>
 
-<!-- Main Layout -->
+
 <main class="flex flex-col-reverse md:flex-row gap-6 px-6 pb-12 max-w-screen-2xl mx-auto">
-  <!-- Products Grid -->
+
   <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 flex-grow products-container" id="productsContainer"></section>
 
-  <!-- Sidebar -->
+ 
   <aside class="w-full md:w-[700px] bg-[#cfff80] rounded-xl p-6 flex flex-col gap-6 sticky md:top-24 text-lg">
     <img id="selectedImage" src="" alt="Selected Product" class="w-full h-30 object-cover rounded-xl hidden" />
     <div id="productDetails" class="bg-gray-300 rounded-xl p-4 h-60 text-black overflow-y-auto">
@@ -132,7 +132,7 @@
 </main>
 
 
-<!-- Cart Modal -->
+
 <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-40 hidden justify-center items-center z-50">
   <div class="bg-white w-96 p-6 rounded shadow-lg relative">
     ...
@@ -370,4 +370,5 @@ function toggleMobileCategoryMenu() {
 
 </body>
 </html>
+
 
